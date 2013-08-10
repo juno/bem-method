@@ -205,10 +205,9 @@ BEMツリーを表現するフォーマットやテンプレートエンジン�
 
 私たちはページを表現するフォーマットにJSONを用いており、BEMHTMLというJavaScriptベースのテンプレートエンジンによってHTMLに変換している。
 
-=== ブロックの非依存
-As projects grow, blocks tend to be added, removed, or moved around the page. For example,
-you may want to swap the ##Logo## and ##Auth Block## or to place the ##Menu## under the
-##Search Block##.
+=== ブロックの独立
+プロジェクトの成長にともなって、ブロックは追加され、削除され、ページの別な位置に移動されたりしていくものである。
+例えば##ロゴ##と##認証ブロック##を入れ替えたり、##メニュー##を##検索ブロック##の下に置いたり、といったことだ。
 
 %%html
 <div style="text-align: center">
@@ -222,30 +221,27 @@ you may want to swap the ##Logo## and ##Auth Block## or to place the ##Menu## un
 </div>
 %%
 
-To make this process easier, blocks must be ##independent##.
+この作業を容易にするには、ブロックが##独立##している必要がある。
 
-An ##independent## block is implemented in a way that allows arbitrary placement —
-anywhere on the page, including nesting inside another block.
+##独立##したブロックは、自由な配置（ページのどこでも、他のブロックを含んだり含まれたり）ができるような方法で実装されている。
 
-====Independent CSS
-From the CSS point of view it means that
+====独立したCSS
+これは、CSSの観点では以下のことを意味する。
 
- * A block (or an element) must have a unique "name" (a CSS class) that could be used in a CSS rule.
- * HTML elements must not be used in CSS selectors (##.menu td##) as such selectors are inherently
-   not context-free.
- * Cascading selectors should be avoided.
+ * ブロック（やエレメント）は、CSSのルール内で使用可能なユニークな名前（CSSクラス）を持つ
+ * CSSセレクタにHTML要素などの、本質的に文脈フリーではないセレクタは含まない（##.menu td##のような）
+ * カスケーティングセレクタは避けるべき
 
-===== Naming for independent CSS classes
-Here's one of the possible CSS class naming scheme:
+===== 独立したCSSクラスのためのネーミング
+適切なCSSクラス名のネーミングルールのひとつがこれだ:
 
- * CSS class for a block coincides with its ##block name##
+  * ブロックのCSSクラスは、その##block name##と同じ
 %%hl xml
 <ul class="menu">
   …
 </ul>
 %%
- * CSS class for an element is a ##block name## and an ##element name## separated
- by some character(s)
+ * エレメントのCSSクラスは、任意のセパレーターで区切られた##block name##と##element name##
 %%hl xml
 <ul class="menu">
   <li class="menu__item">…</li>
@@ -253,33 +249,30 @@ Here's one of the possible CSS class naming scheme:
 </ul>
 %%
 
-It is necessary to include block name into a CSS class for an element to minimize cascading.
+カスケーディングを最小にするためには、エレメントのCSSクラスにブロック名を含めるのが重要である。
 
-It is also important to use separators consistently to allow the tools and helpers (described
-further) unambiguous programmatic access to the elements.
+ツールやヘルパー（後述）が機械的にエレメントにアクセスできるようにするためには、セパレーターを一貫したものにしておくのも重要である。
 
-We use hyphen to separate words in long names (for example, ##block-name##) and two underscores
-to separate the name of the block form the name of the element (##block-name_~_element-name##).
+私たちは、長い名前のセパレーターにハイフンを使い（##block-name##など）、ブロックとエレメントの区切りには２つのアンダースコアを使っている（##block-name_~_element-name##）。
 
-But you can use any other separators for it.
+あなたは好きなセパレーターを使うこともできる。
 
-E.g.:
-  * ##block-name-~-element-name## or
+例:
+  * ##block-name-~-element-name##
   * ##blockName-elementName##
 
-==== Independent templates
-From the template engine's perspective, block independence means that:
+==== 独立したテンプレート
+テンプレートエンジンの観点からは、ブロックの独立は以下のことを意味する:
 
- * Blocks and elements must be described in the input data\\
-   Blocks (or elements) must have unique "names" to make things like "##Menu## should be
-   placed here" expressible in our templates.
- * Blocks may appear anywhere in a BEM tree
+ * ブロックとエレメントは入力データを表現しなければならない\\
+   ブロック（またはエレメント）は、「##メニュー##はここに配置すべき」といったことをテンプレート内で表現できるようにするため、ユニークな「名前」を持たなくてはならない
+ * ブロックはBEMツリーのどこにでも出現できる
 
-===== Independent templates for blocks
-Coming upon a block in a template, the template engine should be able to unambiguously transform
-it into HTML. Thus, every block should have a template for that.
+===== ブロックのための独立したテンプレート
+テンプレート内にブロックがあらわれた場合、テンプレートエンジンはそれを一義的にHTMLに変換することができるはずである。
+したがって、すべてのブロックはそのためのテンプレートを持つべきである。
 
-For example, a template can look like this in XSL:
+例えば、XSLでのテンプレートはこのようになる:
 
 %%hl xml
 <xsl:template match="b:menu">
@@ -295,37 +288,33 @@ For example, a template can look like this in XSL:
 <xsl:template>
 %%
 
-We are gradually discarding XSLT in our products in favor of our own JavaScript-based
-template engine ((https://github.com/veged/xjst XJST)). This template engine absorbs everything
-we like about XSLT (we are fans of declarative programming), and implements it with JavaScript's
-productivity on either client or server side.
+私たちは徐々にプロダクトからXSLTを捨て去っており、自分たちで開発したJavaScriptベースのテンプレートエンジン ((https://github.com/veged/xjst XJST)) に移行しつつある。
+このテンプレートエンジンは、私たちが考えるXSLTの好きなところを持ち合わせつつ（私たちは宣言型プログラミングのファンだ）、クライアントとサーバーサイドの両方での生産性向上のためにJavaScriptで実装されている。
 
-We write our templates using a domain-specific language called BEMHTML, which is based on XJST.
-((/articles/bemhtml-reference/ The main ideas of BEMHTML)).
+私たちはテンプレートを、XJSTベースのBEMHTMLと呼ばれるドメイン固有言語（DSL）で記述している。
+((/articles/bemhtml-reference/ BEMHTMLの概要))
 
 ((https://github.com/bem/bem-bl/tree/master/blocks-common/i-bem/__html BEMHTML))
 
-=== Blocks Reiteration
-The second ##Menu Block## can occur in the ##Foot Block## of a site. Or, a ##Text Block##
-can turn into two, separated by an advertisement.
+=== ブロックの反復
+2つ目の##メニューブロック##は##フッターブロック##内に配置することもできる。
+もしくは、##テキストブロック##は広告によって分割された2つの箇所に配置することもできる。
 
-Even if a block was developed as a singular unit, the same one can appear on a page at any moment.
+あるブロックが単一のものとして開発されていたとしても、同じものをあらゆるタイミングでページに配置することができる。
 
-In CSS related terms, it means:
- * ID-based CSS selectors must not be used\\
-   Only class selectors satisfy our non-uniqueness requirement.
+CSS的に表現するとこうなる:
+* IDベースのCSSクラスを使ってはならない\\
+  「一意なものにはしない」という我々の要求を満たすため、クラスセレクタのみを使う。
 
-On the JavaScript side it means:
- * Blocks with similar behavior are detected unequivocally: they have the same CSS classes\\
-   Using CSS class selectors allow picking all blocks with a given name to apply the required
-   dynamic behavior.
+JavaScript的にはこういうことだ:
+ * 同様の振る舞いを持つブロックは同様に検出される: それらは同じCSSクラスを持つ\\
+   CSSクラスセレクタを使うことで、動的な振る舞いを必要とする同じ名前のすべてのブロックを抽出することができる
 
-=== Modifiers for Blocks
-We often need to create a block very similar to an existing one, but with slightly altered
-its appearance or behavior.
+=== ブロックのためのモディファイア
+既存のものと似ているが、見栄えや振る舞いが少しだけ違うブロックを作りたくなることはよくある。
 
-Let's say, we have a task:
- * Add another ##Menu## in the ##Footer## with a //different layout//.
+こんなタスクがあるとしよう:
+ * ##フッター##に別な##メニュー##を//異なるレイアウト//で追加する。
 
 %%html
 <div style="text-align: center">
@@ -333,15 +322,14 @@ Let's say, we have a task:
 </div>
 %%
 
-To avoid developing another block that is only minimally different from an existing one,
-we can use a ##modifier##.
+既存のものとわずかしか違わないブロックを作るのではなく、##モディファイア##を使うことができる。
 
-A ##modifier## is a property of a block or an element that alters its look or behavior.
+##モディファイア##は、見栄えや振る舞いが少し違うブロックやエレメントのプロパティである。
 
-A modifier has a name and a value. Several modifiers can be used at once.
+モディファイアは名前と値を持つ。複数のモディファイアは同時に使用できる。
 
-**Example**\\
-A block modifier specifies background color
+**例**\\
+背景色を指定するブロックモディファイア
 
 %%html
 <div style="text-align: center">
@@ -349,8 +337,8 @@ A block modifier specifies background color
 </div>
 %%
 
-**Example**\\
-An element modifier changes the look of the "current" item
+**例**\\
+「現在」のアイテムの見た目を変えるエレメントモディファイア
 
 %%html
 <div style="text-align: center">
@@ -358,10 +346,10 @@ An element modifier changes the look of the "current" item
 </div>
 %%
 
-==== From the input data point of view
-In a BEM tree, modifiers are properties of an entity that describes a block or an element.
+==== 入力データの観点から
+BEMツリーにおいてモディファイアは、ブロックやエレメントを表現するエンティティのプロパティである。
 
-For example, they can be attribute nodes in XML:
+例えば、XMLの場合は属性ノードとして表現できる:
 
 %%hl xml
 <b:menu m:size="big" m:type="buttons">
@@ -369,7 +357,7 @@ For example, they can be attribute nodes in XML:
 </b:menu>
 %%
 
-The same expressed in JSON:
+同じものがJSONではこうなる:
 
 %%hl js
 {
@@ -381,8 +369,8 @@ The same expressed in JSON:
 }
 %%
 
-==== From the HTML/CSS point of view
-A modifier is an additional CSS class for a block or an element.
+==== HTML/CSSの観点から
+モディファイアは、ブロックやエレメントに追加するCSSクラスである。
 
 %%hl xml
 <ul class="menu menu_size_big menu_type_buttons">
@@ -392,22 +380,19 @@ A modifier is an additional CSS class for a block or an element.
 
 %%hl css
 .menu_size_big {
-  // CSS code to specify height
+  // 高さを指定するCSSコード
 }
 .menu_type_buttons .menu__item {
-  // CSS code to change item's look
+  // アイテムの見栄えを変えるCSSコード
 }
 %%
 
-Мы используем одно подчёркивание для отделение имени модификатора от имени блока и
-ещё одно подчёркивание для отделения значения модификатора от его имени.
+=== エレメントモディファイア
+エレメントのモディファイアも同じように実装される。
 
-=== Element modifiers
-Element modifiers are implemented in the same fashion.
+かさねて言うが、CSSを手書きする場合には、機械的にアクセスできるように一貫したセパレーターを使うことがとても重要だ。
 
-Again, when writing CSS by hand, it is very important to use separators consistently for programmatic access.
-
-E.g., current menu item can be marked with a modifier:
+例えば、現在のメニューアイテムは以下のモディファイアでマークアップできる:
 
 %%hl xml
 <b:menu>
@@ -439,7 +424,7 @@ E.g., current menu item can be marked with a modifier:
 }
 %%
 
-Which could be represented in HTML as follows:
+これらは以下のようなHTMLとして表現される:
 
 %%hl xml
 <ul class="menu">
@@ -449,7 +434,7 @@ Which could be represented in HTML as follows:
 </ul>
 %%
 
-Or to make menu classes independent of the implementation details of its layout:
+メニュークラスを、そのレイアウト実装の詳細から独立させることもできる:
 
 %%hl xml
 <div class="menu">
@@ -485,19 +470,16 @@ Or to make menu classes independent of the implementation details of its layout:
 </div>
 %%
 
-=== Subject-Matter Abstraction
-When many people work on a project they should agree on a data domain and use it
-when naming their blocks and elements.
+=== 主題の抽象化
+多くの人びとがプロジェクトで作業する場合、メンバーはデータドメインに関して合意を持ち、ブロックやエレメントの命名にはそのドメインを使うべきである。
 
-For example, a ##Tag Cloud## block is always named ##tags##. Each of its elements is a
-##tag##. This convention spreads across all languages: CSS, JavaScript, XSL, etc.
+例えば、##タグクラウド##ブロックは常に##tags##という名前になり、そのエレメントは##tag#となる、というようなことだ。この決まりはCSS、JavaScript、XSLなどすべての言語に対して同じだ。
 
-From the development process' point of view:
- * All participants operate on the same terms
+開発プロセスの観点から:
+ * すべてのメンバーは同じ用語を扱うようになる
 
-From the CSS point of view:
- * CSS for blocks and elements can be written in a pseudo language that compiles
-   down to CSS according to the naming convention.
+CSSの観点から:
+ * ブロックとエレメントに対するCSSを、命名規約に準じたCSSにコンパイルされる擬似言語で記述することができる
 
 %%hl css
   .menu {
@@ -516,9 +498,8 @@ From the CSS point of view:
   }
 %%
 
-On the JavaScript side:
- * Instead of using class selectors directly to find DOM elements, a special helper
-   library may be used:
+JavaScriptの観点から:
+ * クラスセレクタを使ってDOM要素を直接探す代わりに、特別なヘルパーライブラリを使うことができる:
 
 %%hl js
 $('menu__item').click( … );
@@ -526,9 +507,8 @@ $('menu__item').addClass('menu__item_state_current');
 $('menu').toggle('menu_size_big').toggle('menu_size_small');
 %%
 
-The naming convention for CSS classes of blocks and elements can change in the course of
-time. Using special JavaScript functions to access blocks and elements and to work with their
-modifiers makes it possible to change only these functions if the naming convention changes.
+ブロックとエレメントのCSSクラスの命名規約は時とともに変わるものである。
+ブロックとエレメントにアクセスするのに特別なJavaScript関数を使い、その処理にはモディファイアを使うことで、命名規約が変わった場合でもそれらの関数を変更するだけでよくなる。
 
 %%hl js
 block('menu').elem('item').click( … );
@@ -536,12 +516,12 @@ block('menu').elem('item').setMod('state', 'current');
 block('menu').toggleMod('size', 'big', 'small');
 %%
 
-The code above is abstract. In real life we use the JavaScript core of ##i-bem## block
-from the ##bem-bl## block library:
+上記のコードは抽象的なものである。
+私たちは実際には、##bem-bl##ブロックライブラリに含まれる##i-bem##ブロックのJavaScriptコアを使っている。
  ((http://bem.github.com/bem-bl/sets/common-desktop/i-bem/i-bem.en.html))
 
-=== Blocks consistency
-A site has a ##Button## block with certain dynamic behavior.
+=== ブロックの一貫性
+サイトには、ある動的な振る舞いを持った##ボタン##ブロックがある。
 
 %%html
 <div style="text-align: center">
@@ -549,7 +529,7 @@ A site has a ##Button## block with certain dynamic behavior.
 </div>
 %%
 
-When a block is hovered, it changes its appearance.
+ブロックにカーソルを重ねた時、その見栄えが変わる。
 
 %%html
 <div style="text-align: center">
@@ -557,67 +537,59 @@ When a block is hovered, it changes its appearance.
 </div>
 %%
 
-A manager could ask to use the same button on another page.
+マネージャーは、同じボタンを他のページでも使えるかどうか聞きたくなる。
 
-Having a CSS implementation of a block is not enough. Reusing a block also means reusing its
-behavior, described in JavaScript.
+ブロックのCSS実装だけでは不十分だ。ブロックの再利用とは、JavaScriptによる振る舞いも再利用できるということを意味する。
 
-So a block must "know" everything about itself. To implement a block we describe its appearance
-and behavior in all technologies being used - we call that ##multilingualism##.
+ブロックは自身に関するすべてを「知って」いなければならない。ブロックを実装するために、使用しているすべての技術を用いて見栄えと振る舞いを表現する。私たちはそれを##多言語主義（multilingualism）##と呼ぶ。
 
-##Multilingual## presentation is a description of a block in all the programming languages (techs)
-that are necessary to implement the view and the functionality of a block.
+##多言語（Multilingual）##プレゼンテーションとは、ブロックの見た目と機能を実装するのに必要となるすべてのプログラミング言語でブロックを表現したものである。
 
-To have a block present on a page as a UI element we need to implement it in the following techs:
- * Templates (XSL, TT2, JavaScript, etc), which turn block declarations into HTML code
- * CSS that describes appearance of the block
- * A JavaScript implementation for the block, if a block has dynamic behavior
- * Images
- * Documentation
+ブロックをUI要素としてページに配置するには、以下のような技術でブロックを実装する必要がある:
+ * ブロックの宣言をHTMLコードに変換するテンプレート（XSL、TT2、JavaScriptなど）
+ * ブロックの見栄えを記述したCSS
+ * ブロックが動的な振る舞いを持つ場合は、ブロックのJavaScript実装
+ * 画像
+ * ドキュメント
 
-Everything that constitutes a block is a block technology.
+ブロックを構成するすべてのものが、ブロック技術である。
 
-=== Real examples
-((http://company.yandex.ru Yandex)) is a large (mostly Russian) company that
-use BEM methodology to develop its services.
+=== 実際の例
+((http://company.yandex.ru Yandex)) はサービスの開発にBEM方法論を採用している大きな（ほとんどがロシア人）企業である。
 
-BEM methodology does not request you to use certain framework. You also don't
-have to use BEM for all the technologies you have on your pages (but that would
-be the most efficient).
+BEM方法論は、何か固有のフレームワークを使うよう求めることはない。
+あなたは、ページで使っているすべての技術についてBEMを適用する必要もない（しかし、そうしたほうが効率的ではある）。
 
-((http://www.yandex.ru/all All the services of Yandex)) have BEM in their
-CSS and JavaScript code and XSL templates of the pages. E.g.,
+((http://www.yandex.ru/all Yandexのすべてのサービス))は、CSSとJavaScriptコード、それにページのXSLテンプレートでBEMを用いている。
+例:
  * ((http://maps.yandex.ru/?text=%D0%A0%D0%BE%D1%81%D1%81%D0%B8%D1%8F%2C%20%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0&sll=37.609218%2C55.753559&ll=37.609218%2C55.753563&spn=2.570801%2C0.884460&z=9&l=map Yandex.Maps))
  * ((http://images.yandex.ru/yandsearch?text=Yandex+office&rpt=image Yandex.Images))\\
-   This is a service for searching images in the Internet.
+   ネット上の画像を検索するサービス。
  * ((http://video.yandex.ru/#search?text=yac%202011 Yandex.Video))\\
-   This is a service for both hosting and searching images.
+   動画をホスティングし検索するサービス。
  * ((http://auto.yandex.ru/ Yandex.Auto))
  * ((http://www.yandex.com.tr/ Turkish Yandex))
 
-Some services don't use XSL templates and build their pages with our newest template
-product, ##bemhtml## template engine which was mentioned above. These are the following
-services:
+いくつかのサービスではXSLテンプレートを使わず、（前述の）私たちの新しいテンプレートエンジンである ##bemhtml## を使っている。
+そのサービスは以下のとおり:
  * ((http://yandex.ru/yandsearch?text=BEM+methodology+front-end&lr=213 Yandex Search))\\
-   or ((http://yandex.com/yandsearch?text=%22What+is+BEM%3F%22+front-end&lr=213 Yandex Search in English))
+   または ((http://yandex.com/yandsearch?text=%22What+is+BEM%3F%22+front-end&lr=213 Yandex Search in English))
  * ((http://apps.yandex.ru/ Mobile Apps Search))\\
-   This site is to look under smartphones.
+   スマートフォン向け。
 
-There are also other companies that use BEM methodology.
+他の企業でもBEM方法論が用いられている。
 
-For example, guys in ((http://mail.ru Mail.ru)) partly use BEM for their services.
-Some blocks on their pages are BEM-based in terms of CSS code. They also have their
-own C++ template engine and write block templates according to the methodology.
+例えば ((http://mail.ru Mail.ru)) の人たちは部分的にBEMを適用している。彼らのページのいくつかのブロックはCSSがBEMベースとなっている。また、彼らは独自のC++テンプレートエンジンも持っており、ブロックテンプレートを方法論にしたがって記述している。
 
-More examples:
+その他の例:
  * ((http://beta.news.rambler.ru/ Rambler.News))
  * ((http://hh.ru/ HeadHunter))
  * ((http://futurecolors.ru/tnkracing/ TNK Racing Team))
 
-You may also be interested in sites that use ((http://bem.github.com/bem-bl/index.ru.html bem-bl)) block library:
+((http://bem.github.com/bem-bl/index.ru.html bem-bl)) ブロックライブラリを使っているサイトに興味があれば:
  * ((http://form.dev.eot.su/ BEM based web form with JZ validation))
  * ((http://mishanga.pro/ Mikhail Troshev vCard))\\
-   Source code is hosted at GitHub: ((https://github.com/mishanga/bem-vcard))
+   ソースコードはGitHubに公開されている: ((https://github.com/mishanga/bem-vcard))
 
 === もっと読む
   * 定義
