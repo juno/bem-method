@@ -2,7 +2,7 @@ exports.techMixin = {
 
     getLangs: function() {
         // TODO: split process.env.BEM_I18N_LANGS
-        return ['ru', 'en'];
+        return ['ru', 'en', 'ja'];
     },
 
     getSuffixes: function() {
